@@ -4,7 +4,8 @@ import { z } from "zod"
 
 const UpdateTask = z.object({
   id: z.number(),
-  name: z.string(),
+  name: z.string().optional(),
+  completed: z.boolean(),
 })
 
 export default resolver.pipe(

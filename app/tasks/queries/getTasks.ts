@@ -6,8 +6,9 @@ interface GetTasksInput
 
 export default resolver.pipe(
   resolver.authorize(),
-  async ({ where, orderBy, skip = 0, take = 100 }: GetTasksInput) => {
+  async ({ where, orderBy, skip = 0, take = 100 }: GetTasksInput, ctx) => {
     // TODO: in multi-tenant app, you must add validation to ensure correct tenant
+    const userId = ctx.session.userId
     const {
       items: tasks,
       hasMore,
@@ -16,8 +17,9 @@ export default resolver.pipe(
     } = await paginate({
       skip,
       take,
-      count: () => db.task.count({ where }),
-      query: (paginateArgs) => db.task.findMany({ ...paginateArgs, where, orderBy }),
+      count: () => db.task.count({ where: { ...where, userId } }),
+      query: (paginateArgs) =>
+        db.task.findMany({ ...paginateArgs, where: { ...where, userId }, orderBy }),
     })
 
     return {
